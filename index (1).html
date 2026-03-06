@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlobalMart - Amazon-Style Multilingual E-commerce</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --amazon-dark: #131921;
+            --amazon-light: #232F3E;
+            --amazon-yellow: #febd69;
+            --amazon-orange: #f3a847;
+            --amazon-gray: #eaeded;
+            --amazon-text: #0F1111;
+            --amazon-price: #B12704;
+            --amazon-blue: #007185;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Amazon Ember', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: var(--amazon-gray);
+            color: var(--amazon-text);
+            line-height: 1.6;
+        }
+        
+        /* RTL support */
+        body.rtl {
+            direction: rtl;
+            text-align: right;
+        }
+        
+        /* Header Styles - Amazon-like */
+        .navbar {
+            background-color: var(--amazon-dark);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0 15px;
+        }
+        
+        .navbar .container {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        
+        /* Logo */
+        .logo {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        
+        .logo-icon {
+            color: var(--amazon-yellow);
+            margin-right: 5px;
+        }
+        
+        /* Location */
+        .delivery-location {
+            color: white;
+            margin-right: 20px;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+        
+        .delivery-location .location-line1 {
+            font-size: 0.7rem;
+            color: #cccccc;
+        }
+        
+        .delivery-location .location-line2 {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        /* Search Bar */
+        .search-container {
+            flex-grow: 1;
+            display: flex;
+            margin: 0 20px;
+        }
+        
+        .search-select {
+            background-color: #f3f3f3;
+            border: none;
+            border-radius: 4px 0 0 4px;
+            padding: 10px;
+            color: #555;
+            border-right: 1px solid #cdcdcd;
+            cursor: pointer;
+        }
+        
+        .search-input {
+            flex-grow: 1;
+            border: none;
+            padding: 10px;
+            font-size: 1rem;
+        }
+        
+        .search-button {
+            background-color: var(--amazon-orange);
+            border: none;
+            border-radius: 0 4px 4px 0;
+            padding: 0 15px;
+            cursor: pointer;
+            color: var(--amazon-dark);
+        }
+        
+        /* Right side nav */
+        .nav-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .nav-item {
+            color: white;
+            margin-left: 20px;
+            padding: 5px 8px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .nav-item:hover {
+            border: 1px solid white;
+            border-radius: 2px;
+        }
+        
+        .nav-line1 {
+            font-size: 0.7rem;
+        }
+        
+        .nav-line2 {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .cart-item {
+            display: flex;
+            align-items: flex-end;
+        }
+        
+        .cart-icon {
+            font-size: 1.8rem;
+            margin-right: 5px;
+        }
+        
+        .cart-count {
+            color: var(--amazon-orange);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        /* Language Switcher */
+        .language-switcher {
+            position: relative;
+        }
+        
+        .language-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .language-btn i {
+            margin-left: 5px;
+        }
+        
+        .language-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            width: 280px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            padding: 15px;
+            z-index: 100;
+            display: none;
+        }
+        
+        .language-dropdown.show {
+            display: block;
+        }
+        
+        .language-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--amazon-text);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        
+        .language-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .language-option {
+            padding: 8px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        
+        .language-option:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .language-option.active {
+            background-color: #e3f2fd;
+            color: var(--amazon-blue);
+            font-weight: bold;
+        }
+        
+        .language-flag {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        /* Sub-nav */
+        .sub-nav {
+            background-color: var(--amazon-light);
+            height: 40px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            color: white;
+        }
+        
+        .sub-nav-items {
+            display: flex;
+            list-style: none;
+        }
+        
+        .sub-nav-item {
+            margin-right: 20px;
+            padding: 5px 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sub-nav-item:hover {
+            border: 1px solid white;
+            border-radius: 2px;
+        }
+        
+        .sub-nav-item i {
+            margin-right: 5px;
+        }
+        
+        /* Main Content */
+        .container {
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            height: 300px;
+            background: linear-gradient(to right, #0f3460, var(--amazon-dark));
+            position: relative;
+            overflow: hidden;
+            margin-bottom: -150px;
+        }
+        
+        .hero-content {
+            position: absolute;
+            top: 50%;
+            left: 50px;
+            transform: translateY(-50%);
+            color: white;
+            z-index: 2;
+            max-width: 500px;
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .hero-description {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .hero-button {
+            background-color: var(--amazon-orange);
+            color: var(--amazon-dark);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        /* Product Grid */
+        .products-section {
+            padding: 20px 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .section-title {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 1.3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        
+        /* Product Card */
+        .product-card {
+            background-color: white;
+            padding: 15px;
+            border-radius: 4px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .product-image {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        
+        .product-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .product-title {
+            font-size: 1rem;
+            margin-bottom: 10px;
+            height: 40px;
+            overflow: hidden;
+            color: var(--amazon-blue);
+            cursor: pointer;
+        }
+        
+        .product-title:hover {
+            color: var(--amazon-orange);
+            text-decoration: underline;
+        }
+        
+        .product-rating {
+            color: var(--amazon-orange);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .product-price {
+            color: var(--amazon-price);
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .product-shipping {
+            color: #565959;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .product-shipping i {
+            color: var(--amazon-blue);
+        }
+        
+        .add-to-cart-btn {
+            background-color: var(--amazon-yellow);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .add-to-cart-btn:hover {
+            background-color: var(--amazon-orange);
+        }
+        
+        .add-to-cart-btn i {
+            margin-right: 8px;
+        }
+        
+        /* Deals Section */
+        .deals-section {
+            margin: 30px 0;
+        }
+        
+        .deals-header {
+            background-color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .deals-timer {
+            background-color: var(--amazon-light);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: var(--amazon-light);
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 50px;
+        }
+        
+        .footer-top {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .footer-column {
+            flex: 1;
+            margin-right: 30px;
+        }
+        
+        .footer-column:last-child {
+            margin-right: 0;
+        }
+        
+        .footer-column h3 {
+            font-size: 1rem;
+            margin-bottom: 15px;
+            color: white;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 8px;
+        }
+        
+        .footer-column ul li a {
+            color: #dddddd;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .footer-column ul li a:hover {
+            text-decoration: underline;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid #3a4553;
+            padding-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .copyright {
+            font-size: 0.8rem;
+            color: #dddddd;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .footer-top {
+                flex-wrap: wrap;
+            }
+            
+            .footer-column {
+                flex: 0 0 48%;
+                margin-bottom: 20px;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .search-container {
+                margin: 0 10px;
+            }
+            
+            .nav-item {
+                margin-left: 10px;
+            }
+            
+            .hero-content {
+                left: 20px;
+                max-width: 400px;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 10px;
+            }
+            
+            .delivery-location, .nav-item .nav-line1 {
+                display: none;
+            }
+            
+            .search-container {
+                order: 3;
+                margin: 10px 0 0;
+                width: 100%;
+            }
+            
+            .sub-nav {
+                height: auto;
+                flex-wrap: wrap;
+                padding: 10px;
+            }
+            
+            .sub-nav-items {
+                flex-wrap: wrap;
+            }
+            
+            .sub-nav-item {
+                margin-bottom: 5px;
+            }
+            
+            .hero-section {
+                height: 250px;
+                margin-bottom: -100px;
+            }
+            
+            .hero-content {
+                position: relative;
+                left: 0;
+                transform: none;
+                top: 0;
+                padding: 30px 20px;
+                max-width: 100%;
+            }
+            
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+            
+            .footer-top {
+                flex-direction: column;
+            }
+            
+            .footer-column {
+                flex: 0 0 100%;
+                margin-right: 0;
+                margin-bottom: 25px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .language-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* RTL Adjustments */
+        body.rtl .logo-icon {
+            margin-right: 0;
+            margin-left: 5px;
+        }
+        
+        body.rtl .delivery-location {
+            margin-right: 0;
+            margin-left: 20px;
+        }
+        
+        body.rtl .nav-item {
+            margin-left: 0;
+            margin-right: 20px;
+        }
+        
+        body.rtl .cart-icon {
+            margin-right: 0;
+            margin-left: 5px;
+        }
+        
+        body.rtl .language-btn i {
+            margin-left: 0;
+            margin-right: 5px;
+        }
+        
+        body.rtl .language-flag {
+            margin-right: 0;
+            margin-left: 10px;
+        }
+        
+        body.rtl .sub-nav-item {
+            margin-right: 0;
+            margin-left: 20px;
+        }
+        
+        body.rtl .sub-nav-item i {
+            margin-right: 0;
+            margin-left: 5px;
+        }
+        
+        body.rtl .add-to-cart-btn i {
+            margin-right: 0;
+            margin-left: 8px;
+        }
+        
+        body.rtl .footer-column {
+            margin-right: 0;
+            margin-left: 30px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Amazon-style Header -->
+    <header>
+        <!-- Top Navbar -->
+        <nav class="navbar">
+            <div class="container">
+                <!-- Logo -->
+                <a href="#" class="logo">
+                    <i class="fas fa-shopping-bag logo-icon"></i>
+                    <span class="logo-text">GlobalMart</span>
+                </a>
+                
+                <!-- Delivery Location -->
+                <div class="delivery-location">
+                    <div class="location-line1" data-key="deliverTo">Deliver to</div>
+                    <div class="location-line2">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span data-key="country">Country</span>
+                    </div>
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="search-container">
+                    <select class="search-select" id="searchCategory">
+                        <option data-key="allCategories">All Categories</option>
+                        <option data-key="electronics">Electronics</option>
+                        <option data-key="fashion">Fashion</option>
+                        <option data-key="home">Home & Kitchen</option>
+                        <option data-key="books">Books</option>
+                    </select>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search GlobalMart">
+                    <button class="search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                
+                <!-- Right Side Navigation -->
+                <div class="nav-right">
+                    <!-- Language Switcher -->
+                    <div class="nav-item language-switcher">
+                        <div class="language-btn" id="languageBtn">
+                            <i class="fas fa-language"></i>
+                            <span id="currentLanguage">EN</span>
+                            <i class="fas fa-caret-down"></i>
+                        </div>
+                        <div class="language-dropdown" id="languageDropdown">
+                            <div class="language-title" data-key="chooseLanguage">Choose your language</div>
+                            <div class="language-grid" id="languageGrid">
+                                <!-- Language options will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Account -->
+                    <div class="nav-item">
+                        <div class="nav-line1" data-key="hello">Hello, sign in</div>
+                        <div class="nav-line2" data-key="account">Account & Lists</div>
+                    </div>
+                    
+                    <!-- Returns & Orders -->
+                    <div class="nav-item">
+                        <div class="nav-line1" data-key="returns">Returns</div>
+                        <div class="nav-line2" data-key="orders">& Orders</div>
+                    </div>
+                    
+                                     
+                    <!-- Cart -->
+                    <div class="nav-item cart-item">
+                        <i class="fas fa-shopping-cart cart-icon"></i>
+                        <div class="cart-count">0</div>
+                        <div class="nav-line2" data-key="cart">Cart</div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Sub Navigation -->
+        <div class="sub-nav">
+            <div class="container">
+                <ul class="sub-nav-items">
+                    <li class="sub-nav-item">
+                        <i class="fas fa-bars"></i>
+                        <span data-key="all">All</span>
+                    </li>
+                    <li class="sub-nav-item" data-key="todayDeals">Today's Deals</li>
+                    <li class="sub-nav-item" data-key="customerService">Customer Service</li>
+                    <li class="sub-nav-item" data-key="registry">Registry</li>
+                    <li class="sub-nav-item" data-key="giftCards">Gift Cards</li>
+                    <li class="sub-nav-item" data-key="sell">Sell</li>
+                </ul>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title" id="heroTitle">Welcome to GlobalMart</h1>
+            <p class="hero-description" id="heroDescription">Your Amazon-style shopping destination with full multilingual support. Shop in your preferred language with real-time translation.</p>
+            <button class="hero-button" data-key="startShopping">Start Shopping</button>
+        </div>
+    </section>
+    
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Featured Products -->
+        <section class="products-section">
+            <div class="section-title">
+                <span data-key="featuredProducts">Featured Products</span>
+                <a href="#" data-key="seeMore">See more</a>
+            </div>
+            
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be populated by JavaScript -->
+            </div>
+        </section>
+        
+        <!-- Today's Deals -->
+        <section class="deals-section">
+            <div class="deals-header">
+                <h2 data-key="todaysDeals">Today's Deals</h2>
+                <div class="deals-timer">
+                    <i class="fas fa-clock"></i>
+                    <span id="dealTimer">23:59:59</span>
+                </div>
+            </div>
+            
+            <div class="products-grid" id="dealsGrid">
+                <!-- Deals will be populated by JavaScript -->
+            </div>
+        </section>
+        
+        <!-- Recommended for You -->
+        <section class="products-section">
+            <div class="section-title">
+                <span data-key="recommendedForYou">Recommended for You</span>
+                <a href="#" data-key="seeMore">See more</a>
+            </div>
+            
+            <div class="products-grid" id="recommendedGrid">
+                <!-- Recommended products will be populated by JavaScript -->
+            </div>
+        </section>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-column">
+                    <h3 data-key="getToKnowUs">Get to Know Us</h3>
+                    <ul>
+                        <li><a href="#" data-key="aboutUs">About Us</a></li>
+                        <li><a href="#" data-key="careers">Careers</a></li>
+                        <li><a href="#" data-key="pressReleases">Press Releases</a></li>
+                        <li><a href="#" data-key="globalmartScience">GlobalMart Science</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3 data-key="connectWithUs">Connect with Us</h3>
+                    <ul>
+                        <li><a href="#" data-key="facebook">Facebook</a></li>
+                        <li><a href="#" data-key="twitter">Twitter</a></li>
+                        <li><a href="#" data-key="instagram">Instagram</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3 data-key="makeMoneyWithUs">Make Money with Us</h3>
+                    <ul>
+                        <li><a href="#" data-key="sellOnGlobalmart">Sell on GlobalMart</a></li>
+                        <li><a href="#" data-key="sellUnderGlobalmartAccelerator">Sell under GlobalMart Accelerator</a></li>
+                        <li><a href="#" data-key="becomeAnAffiliate">Become an Affiliate</a></li>
+                        <li><a href="#" data-key="fulfillmentByGlobalmart">Fulfillment by GlobalMart</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3 data-key="letUsHelpYou">Let Us Help You</h3>
+                    <ul>
+                        <li><a href="#" data-key="yourAccount">Your Account</a></li>
+                        <li><a href="#" data-key="returnsCenter">Returns Center</a></li>
+                        <li><a href="#" data-key="help">Help</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="copyright">
+                    <p data-key="conditionsOfUse">Conditions of Use & Sale</p>
+                    <p data-key="privacyNotice">Privacy Notice</p>
+                    <p>&copy; 2023 GlobalMart.com, Inc. or its affiliates</p>
+                </div>
+                <div class="language-switcher">
+                    <button class="language-btn" id="footerLanguageBtn">
+                        <i class="fas fa-globe"></i>
+                        <span id="footerLanguage">English</span>
+                        <i class="fas fa-caret-down"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Available languages with Amazon-style data
+        const languages = [
+            { code: 'en', name: 'English', rtl: false, flag: '🇺🇸', short: 'EN' },
+            { code: 'ur', name: 'Urdu', rtl: true, flag: '🇵🇰', short: 'UR' },
+            { code: 'ar', name: 'Arabic', rtl: true, flag: '🇸🇦', short: 'AR' },
+            { code: 'eo', name: 'Spinach (Esperanto)', rtl: false, flag: '🌍', short: 'EO' },
+            { code: 'de', name: 'German', rtl: false, flag: '🇩🇪', short: 'DE' },
+            { code: 'it', name: 'Italian', rtl: false, flag: '🇮🇹', short: 'IT' },
+            { code: 'fr', name: 'French', rtl: false, flag: '🇫🇷', short: 'FR' },
+            { code: 'es', name: 'Spanish', rtl: false, flag: '🇪🇸', short: 'ES' },
+            { code: 'pt', name: 'Portuguese', rtl: false, flag: '🇵🇹', short: 'PT' },
+            { code: 'nl', name: 'Dutch', rtl: false, flag: '🇳🇱', short: 'NL' },
+            { code: 'ru', name: 'Russian', rtl: false, flag: '🇷🇺', short: 'RU' },
+            { code: 'tr', name: 'Turkish', rtl: false, flag: '🇹🇷', short: 'TR' }
+        ];
+
+        // Translation dictionary
+        const translations = {
+            en: {
+                deliverTo: "Deliver to",
+                country: "Country",
+                allCategories: "All Categories",
+                electronics: "Electronics",
+                fashion: "Fashion",
+                home: "Home & Kitchen",
+                books: "Books",
+                hello: "Hello, sign in",
+                account: "Account & Lists",
+                returns: "Returns",
+                orders: "& Orders",
+                cart: "Cart",
+                chooseLanguage: "Choose your language",
+                all: "All",
+                todayDeals: "Today's Deals",
+                customerService: "Customer Service",
+                registry: "Registry",
+                giftCards: "Gift Cards",
+                sell: "Sell",
+                startShopping: "Start Shopping",
+                featuredProducts: "Featured Products",
+                seeMore: "See more",
+                todaysDeals: "Today's Deals",
+                recommendedForYou: "Recommended for You",
+                getToKnowUs: "Get to Know Us",
+                aboutUs: "About Us",
+                careers: "Careers",
+                pressReleases: "Press Releases",
+                globalmartScience: "GlobalMart Science",
+                connectWithUs: "Connect with Us",
+                facebook: "Facebook",
+                twitter: "Twitter",
+                instagram: "Instagram",
+                makeMoneyWithUs: "Make Money with Us",
+                sellOnGlobalmart: "Sell on GlobalMart",
+                sellUnderGlobalmartAccelerator: "Sell under GlobalMart Accelerator",
+                becomeAnAffiliate: "Become an Affiliate",
+                fulfillmentByGlobalmart: "Fulfillment by GlobalMart",
+                letUsHelpYou: "Let Us Help You",
+                yourAccount: "Your Account",
+                returnsCenter: "Returns Center",
+                help: "Help",
+                conditionsOfUse: "Conditions of Use & Sale",
+                privacyNotice: "Privacy Notice",
+                addToCart: "Add to Cart",
+                freeDelivery: "FREE delivery",
+                heroTitle: "Welcome to GlobalMart",
+                heroDescription: "Your Amazon-style shopping destination with full multilingual support. Shop in your preferred language with real-time translation.",
+                searchPlaceholder: "Search GlobalMart"
+            },
+            ur: {
+                deliverTo: "پہنچائیں",
+                country: "ملک",
+                allCategories: "تمام زمرے",
+                electronics: "الیکٹرانکس",
+                fashion: "فیشن",
+                home: "گھر اور باورچی خانے",
+                books: "کتابیں",
+                hello: "ہیلو، سائن ان کریں",
+                account: "اکاؤنٹ اور فہرستیں",
+                returns: "واپسی",
+                orders: "اور آرڈرز",
+                cart: "کارٹ",
+                chooseLanguage: "اپنی زبان منتخب کریں",
+                all: "سب",
+                todayDeals: "آج کے ڈیلز",
+                customerService: "کسٹمر سروس",
+                registry: "رجسٹری",
+                giftCards: "گفٹ کارڈز",
+                sell: "فروخت کریں",
+                startShopping: "خریداری شروع کریں",
+                featuredProducts: "نمایاں مصنوعات",
+                seeMore: "مزید دیکھیں",
+                todaysDeals: "آج کے ڈیلز",
+                recommendedForYou: "آپ کے لیے تجویز کردہ",
+                getToKnowUs: "ہمارے بارے میں جانیں",
+                aboutUs: "ہمارے بارے میں",
+                careers: "کیریئرز",
+                pressReleases: "پریس ریلیز",
+                globalmartScience: "گلوبل مارٹ سائنس",
+                connectWithUs: "ہمارے ساتھ جڑیں",
+                facebook: "فیس بک",
+                twitter: "ٹویٹر",
+                instagram: "انسٹاگرام",
+                makeMoneyWithUs: "ہمارے ساتھ پیسے کمائیں",
+                sellOnGlobalmart: "گلوبل مارٹ پر فروخت کریں",
+                sellUnderGlobalmartAccelerator: "گلوبل مارٹ ایکسلریٹر کے تحت فروخت کریں",
+                becomeAnAffiliate: "ایک ملحق بنیں",
+                fulfillmentByGlobalmart: "گلوبل مارٹ کے ذریعے تکمیل",
+                letUsHelpYou: "ہمیں آپ کی مدد کرنے دیں",
+                yourAccount: "آپ کا اکاؤنٹ",
+                returnsCenter: "واپسی مرکز",
+                help: "مدد",
+                conditionsOfUse: "استعمال اور فروخت کی شرائط",
+                privacyNotice: "رازداری کا نوٹس",
+                addToCart: "کارٹ میں شامل کریں",
+                freeDelivery: "مفت ترسیل",
+                heroTitle: "گلوبل مارٹ میں خوش آمدید",
+                heroDescription: "آپ کی ایمیزون طرز کی خریداری کی منزل جو مکمل کثیر لسانی معاونت کے ساتھ ہے۔ حقیقی وقت کے ترجمے کے ساتھ اپنی پسند کی زبان میں خریداری کریں۔",
+                searchPlaceholder: "گلوبل مارٹ تلاش کریں"
+            },
+            ar: {
+                deliverTo: "توصيل إلى",
+                country: "البلد",
+                allCategories: "جميع الفئات",
+                electronics: "إلكترونيات",
+                fashion: "أزياء",
+                home: "المنزل والمطبخ",
+                books: "كتب",
+                hello: "مرحباً، تسجيل الدخول",
+                account: "الحساب والقوائم",
+                returns: "مرتجعات",
+                orders: "والطلبات",
+                cart: "عربة التسوق",
+                chooseLanguage: "اختر لغتك",
+                all: "الكل",
+                todayDeals: "صفقات اليوم",
+                customerService: "خدمة العملاء",
+                registry: "سجل",
+                giftCards: "بطاقات الهدايا",
+                sell: "بيع",
+                startShopping: "ابدأ التسوق",
+                featuredProducts: "منتجات مميزة",
+                seeMore: "شاهد المزيد",
+                todaysDeals: "صفقات اليوم",
+                recommendedForYou: "موصى به لك",
+                getToKnowUs: "تعرف علينا",
+                aboutUs: "معلومات عنا",
+                careers: "وظائف",
+                pressReleases: "بيانات صحفية",
+                globalmartScience: "علوم جلوبال مارت",
+                connectWithUs: "تواصل معنا",
+                facebook: "فيسبوك",
+                twitter: "تويتر",
+                instagram: "إنستغرام",
+                makeMoneyWithUs: "اكسب المال معنا",
+                sellOnGlobalmart: "البيع على جلوبال مارت",
+                sellUnderGlobalmartAccelerator: "البيع تحت مسرع جلوبال مارت",
+                becomeAnAffiliate: "كن تابعًا",
+                fulfillmentByGlobalmart: "التنفيذ بواسطة جلوبال مارت",
+                letUsHelpYou: "دعنا نساعدك",
+                yourAccount: "حسابك",
+                returnsCenter: "مركز المرتجعات",
+                help: "مساعدة",
+                conditionsOfUse: "شروط الاستخدام والبيع",
+                privacyNotice: "إشعار الخصوصية",
+                addToCart: "أضف إلى العربة",
+                freeDelivery: "توصيل مجاني",
+                heroTitle: "مرحبًا بك في جلوبال مارت",
+                heroDescription: "وجهتك للتسوق على طراز أمازون مع دعم متعدد اللغات بالكامل. تسوق بلغتك المفضلة مع الترجمة في الوقت الفعلي.",
+                searchPlaceholder: "ابحث في جلوبال مارت"
+            },
+            eo: {
+                deliverTo: "Liveru al",
+                country: "Lando",
+                allCategories: "Ĉiuj Kategorioj",
+                electronics: "Elektroniko",
+                fashion: "Modo",
+                home: "Hejmo kaj Kuirejo",
+                books: "Libroj",
+                hello: "Saluton, ensalutu",
+                account: "Konto kaj Listoj",
+                returns: "Revenoj",
+                orders: "kaj Mendoj",
+                cart: "Veturilo",
+                chooseLanguage: "Elektu vian lingvon",
+                all: "Ĉio",
+                todayDeals: "Hodiaŭaj Interkonsentoj",
+                customerService: "Klienta Servo",
+                registry: "Registro",
+                giftCards: "Donacaj Kartoj",
+                sell: "Vendu",
+                startShopping: "Komencu Aĉeti",
+                featuredProducts: "Elstaraj Produktoj",
+                seeMore: "Vidu pli",
+                todaysDeals: "Hodiaŭaj Interkonsentoj",
+                recommendedForYou: "Rekomendita por Vi",
+                getToKnowUs: "Ekkonu Nin",
+                aboutUs: "Pri Ni",
+                careers: "Karieroj",
+                pressReleases: "Gazetaraj Komunikoj",
+                globalmartScience: "GlobalMart Scienco",
+                connectWithUs: "Konektu kun Ni",
+                facebook: "Facebook",
+                twitter: "Twitter",
+                instagram: "Instagram",
+                makeMoneyWithUs: "Gajnu Monon kun Ni",
+                sellOnGlobalmart: "Vendu sur GlobalMart",
+                sellUnderGlobalmartAccelerator: "Vendu sub GlobalMart Akcelilo",
+                becomeAnAffiliate: "Iĝu Kunlaboranto",
+                fulfillmentByGlobalmart: "Plenumo de GlobalMart",
+                letUsHelpYou: "Permesu al Ni Helpi Vin",
+                yourAccount: "Via Konto",
+                returnsCenter: "Revena Centro",
+                help: "Helpo",
+                conditionsOfUse: "Kondiĉoj de Uzo kaj Vendo",
+                privacyNotice: "Privateca Rimarko",
+                addToCart: "Aldoni al la Veturilo",
+                freeDelivery: "SENPAGA livero",
+                heroTitle: "Bonvenon al GlobalMart",
+                heroDescription: "Via aĉetcelloko en la stilo de Amazon kun plena multlingva subteno. Aĉetu en via preferata lingvo kun realtempa traduko.",
+                searchPlaceholder: "Serĉi GlobalMart"
+            },
+            de: {
+                deliverTo: "Liefern an",
+                country: "Land",
+                allCategories: "Alle Kategorien",
+                electronics: "Elektronik",
+                fashion: "Mode",
+                home: "Haushalt & Küche",
+                books: "Bücher",
+                hello: "Hallo, anmelden",
+                account: "Konto & Listen",
+                returns: "Retouren",
+                orders: "& Bestellungen",
+                cart: "Warenkorb",
+                chooseLanguage: "Wählen Sie Ihre Sprache",
+                all: "Alle",
+                todayDeals: "Angebote des Tages",
+                customerService: "Kundenservice",
+                registry: "Wunschzettel",
+                giftCards: "Geschenkgutscheine",
+                sell: "Verkaufen",
+                startShopping: "Jetzt einkaufen",
+                featuredProducts: "Ausgewählte Produkte",
+                seeMore: "Mehr ansehen",
+                todaysDeals: "Angebote des Tages",
+                recommendedForYou: "Für Sie empfohlen",
+                getToKnowUs: "Lernen Sie uns kennen",
+                aboutUs: "Über uns",
+                careers: "Karriere",
+                pressReleases: "Pressemitteilungen",
+                globalmartScience: "GlobalMart Wissenschaft",
+                connectWithUs: "Mit uns in Verbindung bleiben",
+                facebook: "Facebook",
+                twitter: "Twitter",
+                instagram: "Instagram",
+                makeMoneyWithUs: "Geld verdienen mit uns",
+                sellOnGlobalmart: "Bei GlobalMart verkaufen",
+                sellUnderGlobalmartAccelerator: "Unter GlobalMart Accelerator verkaufen",
+                becomeAnAffiliate: "Affiliate-Partner werden",
+                fulfillmentByGlobalmart: "Fulfillment durch GlobalMart",
+                letUsHelpYou: "Lassen Sie sich von uns helfen",
+                yourAccount: "Ihr Konto",
+                returnsCenter: "Retourenzentrum",
+                help: "Hilfe",
+                conditionsOfUse: "Nutzungsbedingungen & Verkauf",
+                privacyNotice: "Datenschutzhinweis",
+                addToCart: "In den Warenkorb",
+                freeDelivery: "KOSTENLOSE Lieferung",
+                heroTitle: "Willkommen bei GlobalMart",
+                heroDescription: "Ihr Amazon-style Einkaufsziel mit voller mehrsprachiger Unterstützung. Kaufen Sie in Ihrer bevorzugten Sprache mit Echtzeit-Übersetzung.",
+                searchPlaceholder: "GlobalMart durchsuchen"
+            },
+            fr: {
+                deliverTo: "Livrer à",
+                country: "Pays",
+                allCategories: "Toutes les catégories",
+                electronics: "Électronique",
+                fashion: "Mode",
+                home: "Maison et cuisine",
+                books: "Livres",
+                hello: "Bonjour, connectez-vous",
+                account: "Compte et listes",
+                returns: "Retours",
+                orders: "et commandes",
+                cart: "Panier",
+                chooseLanguage: "Choisissez votre langue",
+                               all: "Tout",
+                todayDeals: "Les offres du jour",
+                customerService: "Service client",
+                registry: "Liste de mariage",
+                giftCards: "Cartes cadeaux",
+                sell: "Vendre",
+                startShopping: "Commencer les achats",
+                featuredProducts: "Produits en vedette",
+                seeMore: "Voir plus",
+                todaysDeals: "Les offres du jour",
+                recommendedForYou: "Recommandé pour vous",
+                getToKnowUs: "Faites notre connaissance",
+                aboutUs: "À propos de nous",
+                careers: "Carrières",
+                pressReleases: "Communiqués de presse",
+                globalmartScience: "Science GlobalMart",
+                connectWithUs: "Connectez-vous avec nous",
+                facebook: "Facebook",
+                twitter: "Twitter",
+                instagram: "Instagram",
+                makeMoneyWithUs: "Gagnez de l'argent avec nous",
+                sellOnGlobalmart: "Vendre sur GlobalMart",
+                sellUnderGlobalmartAccelerator: "Vendre sous GlobalMart Accelerator",
+                becomeAnAffiliate: "Devenir affilié",
+                fulfillmentByGlobalmart: "Expédié par GlobalMart",
+                letUsHelpYou: "Laissez-nous vous aider",
+                yourAccount: "Votre compte",
+                returnsCenter: "Centre de retours",
+                help: "Aide",
+                conditionsOfUse: "Conditions d'utilisation et de vente",
+                privacyNotice: "Avis de confidentialité",
+                addToCart: "Ajouter au panier",
+                freeDelivery: "Livraison GRATUITE",
+                heroTitle: "Bienvenue sur GlobalMart",
+                heroDescription: "Votre destination shopping style Amazon avec un support multilingue complet. Achetez dans votre langue préférée avec une traduction en temps réel.",
+                searchPlaceholder: "Rechercher sur GlobalMart"
+            }
+        };
+
+        // Product data
+        const products = [
+            { id: 1, name: "Wireless Bluetooth Headphones", price: 89.99, category: "electronics", rating: 4.5, image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop", deal: true },
+            { id: 2, name: "Smart Watch with Fitness Tracker", price: 199.99, category: "electronics", rating: 4.2, image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w-400&h=300&fit=crop", deal: false },
+            { id: 3, name: "Laptop Backpack with USB Charging", price: 49.99, category: "fashion", rating: 4.7, image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop", deal: true },
+            { id: 4, name: "Coffee Maker with Grinder", price: 129.99, category: "home", rating: 4.3, image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=300&fit=crop", deal: false },
+            { id: 5, name: "Fitness Tracker Band", price: 79.99, category: "electronics", rating: 4.0, image: "https://images.unsplash.com/photo-1576243345690-4e4b79b63288?w=400&h=300&fit=crop", deal: true },
+            { id: 6, name: "Electric Toothbrush Set", price: 69.99, category: "home", rating: 4.6, image: "https://images.unsplash.com/photo-1559599101-f09722fb4948?w=400&h=300&fit=crop", deal: false },
+            { id: 7, name: "Gaming Mouse with RGB Lights", price: 59.99, category: "electronics", rating: 4.4, image: "https://images.unsplash.com/photo-1527814050087-3793815479db?w=400&h=300&fit=crop", deal: true },
+            { id: 8, name: "Air Fryer Oven", price: 119.99, category: "home", rating: 4.8, image: "https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=300&fit=crop", deal: false }
+        ];
+
+        // Initialize variables
+        let currentLanguage = 'en';
+        let cartCount = 0;
+
+        // DOM elements
+        const languageBtn = document.getElementById('languageBtn');
+        const languageDropdown = document.getElementById('languageDropdown');
+        const languageGrid = document.getElementById('languageGrid');
+        const currentLanguageSpan = document.getElementById('currentLanguage');
+        const footerLanguageSpan = document.getElementById('footerLanguage');
+        const footerLanguageBtn = document.getElementById('footerLanguageBtn');
+        const searchInput = document.getElementById('searchInput');
+        const cartCountElement = document.querySelector('.cart-count');
+        const productsGrid = document.getElementById('productsGrid');
+        const dealsGrid = document.getElementById('dealsGrid');
+        const recommendedGrid = document.getElementById('recommendedGrid');
+        const dealTimer = document.getElementById('dealTimer');
+
+        // Initialize the website
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved language preference
+            const savedLanguage = localStorage.getItem('globalmart_language');
+            if (savedLanguage && translations[savedLanguage]) {
+                currentLanguage = savedLanguage;
+            }
+            
+            // Populate language dropdown
+            populateLanguageGrid();
+            
+            // Apply current language
+            applyLanguage(currentLanguage);
+            
+            // Populate products
+            populateProducts();
+            
+            // Start deal timer
+            startDealTimer();
+            
+            // Add event listeners
+            languageBtn.addEventListener('click', toggleLanguageDropdown);
+            footerLanguageBtn.addEventListener('click', toggleLanguageDropdown);
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!languageBtn.contains(event.target) && !languageDropdown.contains(event.target) && 
+                    !footerLanguageBtn.contains(event.target)) {
+                    languageDropdown.classList.remove('show');
+                }
+            });
+            
+            // Search functionality
+            document.querySelector('.search-button').addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            // Start shopping button
+            document.querySelector('.hero-button').addEventListener('click', function() {
+                document.querySelector('.products-section').scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Populate language grid in dropdown
+        function populateLanguageGrid() {
+            languages.forEach(lang => {
+                const option = document.createElement('div');
+                option.className = 'language-option';
+                option.dataset.code = lang.code;
+                
+                option.innerHTML = `
+                    <span class="language-flag">${lang.flag}</span>
+                    <span>${lang.name}</span>
+                `;
+                
+                option.addEventListener('click', () => {
+                    selectLanguage(lang.code);
+                    languageDropdown.classList.remove('show');
+                });
+                
+                languageGrid.appendChild(option);
+            });
+        }
+
+        // Toggle language dropdown
+        function toggleLanguageDropdown() {
+            languageDropdown.classList.toggle('show');
+        }
+
+        // Select a new language
+        function selectLanguage(langCode) {
+            if (translations[langCode]) {
+                currentLanguage = langCode;
+                applyLanguage(langCode);
+                
+                // Save preference to localStorage
+                localStorage.setItem('globalmart_language', langCode);
+            }
+        }
+
+        // Apply language to all elements
+        function applyLanguage(langCode) {
+            // Update body classes for RTL
+            document.body.classList.toggle('rtl', languages.find(l => l.code === langCode)?.rtl || false);
+            
+            // Update current language display
+            const language = languages.find(l => l.code === langCode);
+            currentLanguageSpan.textContent = language.short;
+            footerLanguageSpan.textContent = language.name;
+            
+            // Update all translatable elements
+            document.querySelectorAll('[data-key]').forEach(element => {
+                const key = element.dataset.key;
+                if (translations[langCode] && translations[langCode][key]) {
+                    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                        element.placeholder = translations[langCode][key];
+                    } else if (element.tagName === 'OPTION') {
+                        element.textContent = translations[langCode][key];
+                    } else {
+                        element.textContent = translations[langCode][key];
+                    }
+                }
+            });
+            
+            // Update active language option
+            document.querySelectorAll('.language-option').forEach(option => {
+                option.classList.toggle('active', option.dataset.code === langCode);
+            });
+            
+            // Update search placeholder
+            if (translations[langCode] && translations[langCode].searchPlaceholder) {
+                searchInput.placeholder = translations[langCode].searchPlaceholder;
+            }
+        }
+
+        // Populate products on the page
+        function populateProducts() {
+            // Clear existing products
+            productsGrid.innerHTML = '';
+            dealsGrid.innerHTML = '';
+            recommendedGrid.innerHTML = '';
+            
+            // Featured products (first 4)
+            products.slice(0, 4).forEach(product => {
+                productsGrid.appendChild(createProductCard(product));
+            });
+            
+            // Today's deals (products with deal: true)
+            const dealProducts = products.filter(p => p.deal);
+            dealProducts.forEach(product => {
+                dealsGrid.appendChild(createProductCard(product));
+            });
+            
+            // Recommended products (shuffled)
+            const shuffledProducts = [...products].sort(() => 0.5 - Math.random()).slice(0, 4);
+            shuffledProducts.forEach(product => {
+                recommendedGrid.appendChild(createProductCard(product));
+            });
+        }
+
+        // Create product card HTML
+        function createProductCard(product) {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            
+            // Add deal badge if applicable
+            const dealBadge = product.deal ? '<div class="deal-badge" style="background:#cc0c39;color:white;padding:3px 8px;border-radius:3px;font-size:0.8rem;margin-bottom:10px;display:inline-block;">DEAL</div>' : '';
+            
+            card.innerHTML = `
+                ${dealBadge}
+                <div class="product-image">
+                    <img src="${product.image}" alt="${product.name}">
+                </div>
+                <h3 class="product-title">${product.name}</h3>
+                <div class="product-rating">
+                    ${generateStarRating(product.rating)}
+                    <span style="margin-left:5px;color:#007185;">${product.rating}</span>
+                </div>
+                <div class="product-price">$${product.price.toFixed(2)}</div>
+                <div class="product-shipping">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span data-key="freeDelivery">FREE delivery</span>
+                </div>
+                <button class="add-to-cart-btn" data-product-id="${product.id}">
+                    <i class="fas fa-cart-plus"></i>
+                    <span data-key="addToCart">Add to Cart</span>
+                </button>
+            `;
+            
+            // Add event listener to the button
+            const addToCartBtn = card.querySelector('.add-to-cart-btn');
+            addToCartBtn.addEventListener('click', function() {
+                addToCart(product.id);
+            });
+            
+            // Translate button text
+            const addToCartText = addToCartBtn.querySelector('span');
+            if (translations[currentLanguage] && translations[currentLanguage].addToCart) {
+                addToCartText.textContent = translations[currentLanguage].addToCart;
+            }
+            
+            // Translate shipping text
+            const shippingText = card.querySelector('.product-shipping span');
+            if (translations[currentLanguage] && translations[currentLanguage].freeDelivery) {
+                shippingText.textContent = translations[currentLanguage].freeDelivery;
+            }
+            
+            return card;
+        }
+
+        // Generate star rating HTML
+        function generateStarRating(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<i class="fas fa-star" style="color:#f0c14b;"></i>';
+            }
+            
+            if (hasHalfStar) {
+                stars += '<i class="fas fa-star-half-alt" style="color:#f0c14b;"></i>';
+            }
+            
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<i class="far fa-star" style="color:#f0c14b;"></i>';
+            }
+            
+            return stars;
+        }
+
+        // Add product to cart
+        function addToCart(productId) {
+            cartCount++;
+            cartCountElement.textContent = cartCount;
+            
+            const product = products.find(p => p.id === productId);
+            let message = `${product.name} added to cart!`;
+            
+            // Show notification based on language
+            if (currentLanguage === 'ur') {
+                message = `${product.name} کارٹ میں شامل کر دیا گیا ہے!`;
+            } else if (currentLanguage === 'ar') {
+                message = ` ${product.name} تمت إضافة إلى العربة!`;
+            } else if (currentLanguage === 'eo') {
+                message = `${product.name} aldonita al la veturilo!`;
+            } else if (currentLanguage === 'de') {
+                message = `${product.name} wurde in den Warenkorb gelegt!`;
+            } else if (currentLanguage === 'fr') {
+                message = `${product.name} ajouté au panier!`;
+            }
+            
+            // Show a simple alert (in a real app, you'd use a toast notification)
+            alert(message);
+        }
+
+        // Start countdown timer for deals
+        function startDealTimer() {
+            let time = 23 * 60 * 60 + 59 * 60 + 59; // 23:59:59 in seconds
+            
+            const timerInterval = setInterval(() => {
+                time--;
+                
+                const hours = Math.floor(time / 3600);
+                const minutes = Math.floor((time % 3600) / 60);
+                const seconds = time % 60;
+                
+                dealTimer.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (time <= 0) {
+                    clearInterval(timerInterval);
+                    dealTimer.textContent = "Deal expired";
+                }
+            }, 1000);
+        }
+
+        // Perform search
+        function performSearch() {
+            const query = searchInput.value.trim();
+            if (query) {
+                let message = `Searching for: ${query}`;
+                
+                if (currentLanguage === 'ur') {
+                    message = `تلاش کر رہے ہیں: ${query}`;
+                } else if (currentLanguage === 'ar') {
+                    message = `:البحث عن ${query}`;
+                } else if (currentLanguage === 'eo') {
+                    message = `Serĉante: ${query}`;
+                } else if (currentLanguage === 'de') {
+                    message = `Suche nach: ${query}`;
+                } else if (currentLanguage === 'fr') {
+                    message = `Recherche de: ${query}`;
+                }
+                
+                alert(message);
+            }
+        }
+    </script>
+</body>
+</html>
